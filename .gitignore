@@ -1,0 +1,86 @@
+# Node/Next.js
+node_modules/
+.npmrc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# Build outputs
+.next/
+.next.static/
+out/
+dist/
+build/
+coverage/
+.cache/
+.turbo/
+.eslintcache
+
+# App-specific build/dep folders (monorepo)
+apps/**/.next/
+apps/**/node_modules/
+apps/**/dist/
+apps/**/build/
+apps/**/coverage/
+
+# TypeScript incremental build info
+**/*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Env files
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Docker/local overrides
+docker-compose.override.yml
+.env.docker
+
+# Temporary/cache
+.tmp/
+.temp/
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Vercel
+.vercel/
+
+# Optional: data folder (ignore large local datasets but keep placeholder)
+data/**
+!data/.gitkeep
+!data/**/README.md
+
+# Media/exports (uncomment if generated locally)
+# exports/
+# frames/
+# storage/

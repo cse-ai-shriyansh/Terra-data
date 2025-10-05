@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  # Frontend Next.js Application
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:3001
+      - NEXT_PUBLIC_MINIO_ENDPOINT=http://localhost:9000
+    depends_on:
+      - api
+      - minio
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/web
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+
+  # Backend API Service
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - API_PORT=3001
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password123
+      - MINIO_BUCKET=terra25-local
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/terra25
+      - EARTHDATA_USERNAME=${EARTHDATA_USERNAME}
+      - EARTHDATA_PASSWORD=${EARTHDATA_PASSWORD}
+    depends_on:
+      - postgres
+      - minio
+      - ingestor
+    volumes:
+      - ./apps/api:/app
+      - /app/node_modules
+      - ./apps/api/data:/app/data
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/api
+          target: /app
+          ignore:
+            - node_modules/
+            - dist/
+
+  # Python Ingestor Service
+  ingestor:
+    build:
+      context: ./services/ingestor
+      dockerfile: Dockerfile
+    environment:
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password123
+      - MINIO_BUCKET=terra25-local
+      - EARTHDATA_USERNAME=${EARTHDATA_USERNAME}
+      - EARTHDATA_PASSWORD=${EARTHDATA_PASSWORD}
+      - NASA_GIBS_WMTS_URL=https://gibs.earthdata.nasa.gov/wmts/epsg4326/best
+      - LAADS_DAAC_URL=https://ladsweb.modaps.eosdis.nasa.gov/api/v2
+    depends_on:
+      - minio
+    volumes:
+      - ./services/ingestor:/app
+      - ./services/ingestor/temp:/tmp/terra25
+    restart: unless-stopped
+
+  # PostgreSQL Database (optional)
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=terra25
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # MinIO S3-compatible Storage
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password123
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # MinIO Client for bucket creation
+  minio-setup:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until (/usr/bin/mc alias set minio http://minio:9000 admin password123) do echo 'Waiting for MinIO...' && sleep 1; done;
+      /usr/bin/mc mb minio/terra25-local --ignore-existing;
+      /usr/bin/mc policy set public minio/terra25-local;
+      exit 0;
+      "
+
+  # Redis for Caching (optional)
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_data:
+  minio_data:
+  redis_data:

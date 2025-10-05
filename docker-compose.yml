@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgis/postgis:15-3.3
+    environment:
+      POSTGRES_DB: terra25
+      POSTGRES_USER: terra25
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - terra25
+
+  # Redis for caching and job queue
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - terra25
+
+  # Next.js Frontend
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:3001
+    depends_on:
+      - api
+    networks:
+      - terra25
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/web/src
+          target: /app/src
+        - action: rebuild
+          path: ./apps/web/package.json
+
+  # Express API Backend
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://terra25:password@postgres:5432/terra25
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - terra25
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/api/src
+          target: /app/src
+        - action: rebuild
+          path: ./apps/api/package.json
+
+  # Python Data Ingestor
+  ingestor:
+    build:
+      context: ./services/ingestor
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://terra25:password@postgres:5432/terra25
+      - REDIS_URL=redis://redis:6379
+      - RUN_EXAMPLE=true
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ingestor_data:/app/data
+      - ingestor_output:/app/output
+    networks:
+      - terra25
+
+volumes:
+  postgres_data:
+  redis_data:
+  ingestor_data:
+  ingestor_output:
+
+networks:
+  terra25:
+    driver: bridge
