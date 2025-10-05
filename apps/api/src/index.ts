@@ -33,6 +33,28 @@ app.get('/health', (req: Request, res: Response) => {
   })
 })
 
+// Root route
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    message: 'Terra25 API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: '/health',
+      api: {
+        ingest: '/api/ingest',
+        frames: '/api/frames',
+        export: '/api/export',
+        terra: '/api/terra',
+        'bulk-download': '/api/bulk-download',
+        'world-maps': '/api/world-maps',
+        'earthdata-export': '/api/earthdata-export',
+        animation: '/api/animation'
+      }
+    }
+  })
+})
+
 // API Routes
 app.use('/api/ingest', ingestRouter)
 app.use('/api/frames', framesRouter)
