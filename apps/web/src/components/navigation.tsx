@@ -20,7 +20,7 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3">
             <Image
-              src="/terra/logo.png"
+              src="/terra/logo.svg"
               alt="Terra25"
               width={40}
               height={40}

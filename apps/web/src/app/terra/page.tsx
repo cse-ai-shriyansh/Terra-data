@@ -58,7 +58,7 @@ export default function TerraDataPage() {
         <div className="text-center mb-8">
           {/* Terra25 Logo */}
           <div className="flex justify-center mb-6">
-            <Image src="/terra/logo.png" alt="Terra25" width={100} height={100} priority className="drop-shadow-lg" />
+            <Image src="/terra/logo.svg" alt="Terra25" width={100} height={100} priority className="drop-shadow-lg" />
           </div>
           
           <h1 className="text-4xl font-bold text-gray-900 mb-4">

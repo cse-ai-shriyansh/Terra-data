@@ -52,7 +52,7 @@ export function Hero() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="flex justify-center mb-4"
           >
-            <Image src="/terra/logo.png" alt="Terra25" width={120} height={120} priority className="drop-shadow-2xl" />
+            <Image src="/terra/logo.svg" alt="Terra25" width={120} height={120} priority className="drop-shadow-2xl" />
           </motion.div>
 
           {/* Badge */}
