@@ -4,38 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 
-// Deterministic PRNG to avoid SSR/CSR mismatches from Math.random()
-function createSeededRng(seed = 42) {
-  let s = seed >>> 0;
-  return function rng() {
-    // xorshift32
-    s ^= s << 13;
-    s ^= s >>> 17;
-    s ^= s << 5;
-    // Convert to [0,1)
-    return ((s >>> 0) / 0xffffffff);
-  };
-}
-
-const PARTICLE_COUNT = 20;
-function useDeterministicParticles() {
-  // Generate a deterministic set of particle positions and timings.
-  // Using useMemo would also work, but a simple top-level memo is fine since
-  // this module is evaluated once per bundle load both on server and client.
-  const rng = createSeededRng(1337);
-  const particles = Array.from({ length: PARTICLE_COUNT }, () => {
-    const xOffset = rng() * 100 - 50; // [-50, 50)
-    const yOffset = rng() * 100 - 50; // [-50, 50)
-    const duration = rng() * 3 + 2;   // [2, 5)
-    const left = rng() * 100;         // [0, 100)
-    const top = rng() * 100;          // [0, 100)
-    return { xOffset, yOffset, duration, left, top };
-  });
-  return particles;
-}
-
 export function Hero() {
-  const particles = useDeterministicParticles();
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Animation */}
@@ -45,23 +14,23 @@ export function Hero() {
         
         {/* Animated particles */}
         <div className="absolute inset-0">
-          {particles.map((p, i) => (
+          {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute w-2 h-2 bg-terra-400/30 rounded-full"
               animate={{
-                x: [0, p.xOffset],
-                y: [0, p.yOffset],
+                x: [0, Math.random() * 100 - 50],
+                y: [0, Math.random() * 100 - 50],
                 opacity: [0, 1, 0],
               }}
               transition={{
-                duration: p.duration,
+                duration: Math.random() * 3 + 2,
                 repeat: Infinity,
                 repeatType: "reverse",
               }}
               style={{
-                left: `${p.left}%`,
-                top: `${p.top}%`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
               }}
             />
           ))}
@@ -83,7 +52,7 @@ export function Hero() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="flex justify-center mb-4"
           >
-            <Image src="/terra/logo.svg" alt="Terra25" width={120} height={120} priority className="drop-shadow-2xl" />
+            <Image src="/terra/logo.png" alt="Terra25" width={120} height={120} priority className="drop-shadow-2xl" />
           </motion.div>
 
           {/* Badge */}
