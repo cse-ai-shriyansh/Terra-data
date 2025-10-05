@@ -1,13 +1,12 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { TerraTileViewer } from '@/components/terra-tile-viewer'
-import { Terra25Logo } from '@/components/terra25-logo'
-import { 
-  terraClient, 
-  exampleFetchSingleTile, 
-  exampleFetchTileSequence, 
-  examplePrefetchForAnimation 
+import {
+  exampleFetchSingleTile,
+  exampleFetchTileSequence,
+  examplePrefetchForAnimation,
 } from '@/lib/terra-client'
 
 export default function TerraDataPage() {
@@ -59,7 +58,7 @@ export default function TerraDataPage() {
         <div className="text-center mb-8">
           {/* Terra25 Logo */}
           <div className="flex justify-center mb-6">
-            <Terra25Logo size={100} animated className="drop-shadow-lg" />
+            <Image src="/terra/logo.svg" alt="Terra25" width={100} height={100} priority className="drop-shadow-lg" />
           </div>
           
           <h1 className="text-4xl font-bold text-gray-900 mb-4">

@@ -1,4 +1,4 @@
-import { Terra25Logo } from './terra25-logo';
+import Image from 'next/image';
 
 interface LoadingSpinnerProps {
   size?: number;
@@ -14,10 +14,7 @@ export function LoadingSpinner({
   return (
     <div className={`flex flex-col items-center justify-center space-y-4 ${className}`}>
       <div className="relative">
-        <Terra25Logo 
-          size={size} 
-          className="animate-pulse" 
-        />
+  <Image src="/terra/logo.svg" alt="Terra25" width={size} height={size} className="animate-pulse" />
         <div className="absolute inset-0 animate-spin">
           <div className="w-full h-full border-4 border-transparent border-t-blue-500 rounded-full"></div>
         </div>

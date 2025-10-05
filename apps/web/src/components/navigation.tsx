@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTheme } from './theme-provider'
-import { Terra25Logo } from './terra25-logo'
+import Image from 'next/image'
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -19,7 +19,14 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3">
-            <Terra25Logo size={40} animated className="transition-transform hover:scale-105" />
+            <Image
+              src="/terra/logo.svg"
+              alt="Terra25"
+              width={40}
+              height={40}
+              priority
+              className="transition-transform hover:scale-105"
+            />
             <span className="text-xl font-bold text-gray-900 dark:text-white">
               Terra25
             </span>
