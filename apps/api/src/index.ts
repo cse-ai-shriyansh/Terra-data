@@ -60,8 +60,14 @@ app.use('*', (req: Request, res: Response) => {
   })
 })
 
-app.listen(PORT, () => {
-  console.log(`🚀 Terra25 API server running on port ${PORT}`)
-  console.log(`📊 Health check: http://localhost:${PORT}/health`)
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
-})
+// Export for Vercel serverless
+export default app
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Terra25 API server running on port ${PORT}`)
+    console.log(`📊 Health check: http://localhost:${PORT}/health`)
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
+  })
+}
